@@ -6,9 +6,22 @@ edition = "2024"
 [dependencies]
 axum = { version = "0.8.9", features = ["macros"] }
 tokio = { version = "1.53.1", features = ["full"] }
+tower = {version = "0.5", features = ["util"]}
+tower-http = { version = "0.6", features = ["trace", "cors", "request-id", "timeout"]}
 
 sqlx = { version = "0.9.0", features = ["runtime-tokio", "postgres", "macros", "uuid", "chrono", "migrate"] }
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+validator = {version = "0.20", features = ["derive"]}
+
 dotenv = "0.15.0"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["json"] }
-serde = { version = "1.0", features = ["derive"] }
+
+uuid = {version = "1.13", features = ["v4", "serde"]}
+chrono = {version = "0.4", features = ["serde"]}
+thiserror = "2.0"
+async-trait = "0.1"
+sha2 = "0.10"
+regex = "1.11"

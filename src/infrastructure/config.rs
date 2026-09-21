@@ -1,5 +1,6 @@
 use std::env;
 
+#[derive(Debug, Clone)]
 pub struct DatabaseConfig {
     pub host: String,
     pub port: u16,
@@ -8,6 +9,7 @@ pub struct DatabaseConfig {
     pub name: String,
 }
 
+#[derive(Debug, Clone)]
 pub struct AppConfig {
     pub host: String,
     pub port: u16,
@@ -52,5 +54,9 @@ impl AppConfig {
         let db = DatabaseConfig::from_env()?;
 
         Ok(Self { host, port, db })
+    }
+
+    pub fn server_address(&self) -> String {
+        format!("{}:{}", self.host, self.port)
     }
 }

@@ -1,3 +1,5 @@
+mod domain;
+mod error;
 mod infrastructure;
 mod interface;
 
@@ -7,7 +9,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 
 use crate::{
     infrastructure::database::{create_pool, run_migrations},
-    interface::routes::create_router,
+    interface::{routes::create_router, state::AppState},
 };
 
 #[tokio::main]
@@ -21,15 +23,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             if let Err(e) = run_migrations(&p).await {
                 tracing::error!("Gagal menjalankan migration: {}", e)
             };
+            p
         }
         Err(e) => {
             return Err(e.into());
         }
     };
 
-    let router = create_router();
+    let state = AppState::new(config.clone(), pool.clone());
 
-    let address = format!("{}:{}", config.host, config.port);
+    let router = create_router(state);
+    let address = config.server_address();
     let listener = tokio::net::TcpListener::bind(&address).await?;
 
     axum::serve(listener, router).await?;

@@ -2,8 +2,8 @@ use sqlx::PgPool;
 
 use crate::{domain::entities::toll_road::TollRoad, error::AppError};
 
-#[derive(Clone)]
-struct TollRoadRepository {
+#[derive(Clone, Debug)]
+pub struct TollRoadRepository {
     pool: PgPool,
 }
 

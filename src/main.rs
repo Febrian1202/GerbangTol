@@ -1,3 +1,4 @@
+mod application;
 mod domain;
 mod error;
 mod infrastructure;
@@ -8,7 +9,11 @@ use tokio;
 use tracing_subscriber::util::SubscriberInitExt;
 
 use crate::{
-    infrastructure::database::{create_pool, run_migrations},
+    application::services::toll_road_service::TollRoadService,
+    infrastructure::{
+        database::{create_pool, run_migrations},
+        repositories::toll_road_repo::TollRoadRepository,
+    },
     interface::{routes::create_router, state::AppState},
 };
 
@@ -30,7 +35,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
     };
 
-    let state = AppState::new(config.clone(), pool.clone());
+    let toll_road_repo = TollRoadRepository::new(pool.clone());
+    let toll_road_service = TollRoadService::new(toll_road_repo.clone());
+
+    let state = AppState::new(config.clone(), pool.clone(), toll_road_service.clone());
 
     let router = create_router(state);
     let address = config.server_address();

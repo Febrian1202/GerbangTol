@@ -18,6 +18,7 @@ impl TollRoadRepository {
         sqlx::query(include_str!("./sql/insert_toll_road.sql"))
             .bind(road.id)
             .bind(&road.code)
+            .bind(&road.name)
             .bind(&road.description)
             .bind(road.created_at)
             .bind(road.updated_at)

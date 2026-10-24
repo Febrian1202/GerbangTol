@@ -3,7 +3,7 @@ use sqlx::{PgPool, migrate::MigrateError, postgres::PgPoolOptions};
 
 pub async fn create_pool(config: &AppConfig) -> Result<PgPool, sqlx::Error> {
     let pool = PgPoolOptions::new()
-        .connect(&config.db.connection_string().as_str())
+        .connect(config.db.connection_string().as_str())
         .await?;
 
     Ok(pool)

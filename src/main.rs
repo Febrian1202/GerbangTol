@@ -5,6 +5,7 @@ mod infrastructure;
 mod interface;
 
 use infrastructure::config::AppConfig;
+use std::error::Error;
 use tokio;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -18,7 +19,7 @@ use crate::{
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     tracing_subscriber::registry().init();
 
     let config = AppConfig::from_env()?;

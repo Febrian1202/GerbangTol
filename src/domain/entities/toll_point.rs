@@ -2,6 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::domain::entities::toll_gate::TollGate;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TollPoint {
     pub id: Uuid,
@@ -10,6 +12,7 @@ pub struct TollPoint {
     pub name: String,
     pub km_position: f64,
     pub sequence_order: i32,
+    pub gates: Vec<TollGate>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

@@ -3,7 +3,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::domain::entities::{toll_point::TollPoint, toll_road::TollRoad};
+use crate::domain::{
+    entities::{toll_point::TollPoint, toll_road::TollRoad},
+    value_objects::{gate_type::GateType, vehicle_class::VehicleClass},
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize, Validate)]
 pub struct CreateTollRoadRequest {
@@ -22,6 +25,10 @@ pub struct CreateTollRoadRequest {
     #[validate(nested)]
     #[serde(default)]
     pub points: Vec<CreateTollPointDto>,
+
+    #[validate(nested)]
+    #[serde(default)]
+    pub rates: Vec<CreateTollRateDto>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Validate)]
@@ -34,7 +41,40 @@ pub struct CreateTollPointDto {
 
     #[validate(range(min = 0.0, message = "Posisi kilometer harus lebih atau sama dengan 0"))]
     pub km_position: f64,
+
     pub sequence_order: Option<i32>,
+
+    #[validate(nested)]
+    #[serde(default)]
+    pub gates: Vec<CreateTollGateDto>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, Validate)]
+pub struct CreateTollGateDto {
+    #[validate(length(min = 1, max = 50, message = "Kode gate harus antara 1-50 karakter"))]
+    pub code: String,
+
+    #[validate(length(min = 1, max = 255, message = "Nama gate harus antara 1-255 karakter"))]
+    pub name: String,
+
+    pub gate_type: GateType,
+
+    pub assigned_vehicle_class: Option<VehicleClass>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, Validate)]
+pub struct CreateTollRateDto {
+    pub vehicle_class: VehicleClass,
+
+    #[validate(range(min = 0.0, message = "Tarif dasar harus >= 0.0"))]
+    #[serde(default)]
+    pub base_fare: f64,
+
+    #[validate(range(min = 0.0, message = "Tarif per KM harus >= 0.0"))]
+    #[serde(default)]
+    pub rate_per_km: f64,
+
+    pub description: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

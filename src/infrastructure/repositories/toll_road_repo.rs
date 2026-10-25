@@ -1,6 +1,16 @@
-use sqlx::PgPool;
+use std::str::FromStr;
 
-use crate::{domain::entities::toll_road::TollRoad, error::AppError};
+use chrono::{DateTime, Utc};
+use sqlx::{PgPool, Row};
+use uuid::Uuid;
+
+use crate::{
+    domain::{
+        entities::{toll_gate::TollGate, toll_point::TollPoint, toll_road::TollRoad},
+        value_objects::{gate_type::GateType, vehicle_class::VehicleClass},
+    },
+    error::AppError,
+};
 
 #[derive(Clone, Debug)]
 pub struct TollRoadRepository {
@@ -82,5 +92,73 @@ impl TollRoadRepository {
 
         tx.commit().await?;
         Ok(road.clone())
+    }
+    pub async fn find_gate_by_id(
+        &self,
+        id: Uuid,
+    ) -> Result<Option<(TollGate, TollPoint, TollRoad)>, AppError> {
+        let row = sqlx::query(include_str!("./sql/find_gate_by_id.sql"))
+            .bind(id)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        let Some(r) = row else { return Ok(None) };
+
+        let gate_type_str: String = r.get("gate_type");
+        let gate_type = GateType::from_str(&gate_type_str)?;
+
+        let assigned_vc_str: Option<String> = r.get("assigned_id");
+        let assigned_vc = match assigned_vc_str {
+            Some(s) => Some(VehicleClass::from_str(&s)?),
+            None => None,
+        };
+
+        let gate_created_at: DateTime<Utc> = r.get("gate_created_at");
+        let gate_updated_at: DateTime<Utc> = r.get("gate_updated_at");
+
+        let gate = TollGate {
+            id: r.get("gate_id"),
+            toll_point_id: r.get("point_id"),
+            code: r.get("gate_code"),
+            name: r.get("gate_name"),
+            gate_type,
+            assigned_vehicle_class: assigned_vc,
+            created_at: gate_created_at,
+            updated_at: gate_updated_at,
+        };
+
+        let km_position: f64 = r.get("km_position");
+        let sequence_order: i32 = r.get("sequence_order");
+
+        let point_created_at: DateTime<Utc> = r.get("point_created_at");
+        let point_updated_at: DateTime<Utc> = r.get("point_updated_at");
+
+        let point = TollPoint {
+            id: r.get("point_id"),
+            toll_road_id: r.get("road_id"),
+            code: r.get("point_code"),
+            name: r.get("point_name"),
+            km_position,
+            sequence_order,
+            gates: vec![],
+            created_at: point_created_at,
+            updated_at: point_updated_at,
+        };
+
+        let road_created_at: DateTime<Utc> = r.get("road_created_at");
+        let road_updated_at: DateTime<Utc> = r.get("road_updated_at");
+
+        let road = TollRoad {
+            id: r.get("road_id"),
+            code: r.get("road_code"),
+            name: r.get("road_name"),
+            description: r.get("road_description"),
+            points: vec![],
+            rates: vec![],
+            created_at: road_created_at,
+            updated_at: road_updated_at,
+        };
+
+        Ok(Some((gate, point, road)))
     }
 }

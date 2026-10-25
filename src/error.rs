@@ -25,9 +25,8 @@ pub enum AppError {
 
     #[error("Kesalahan database: {0}")]
     Database(String),
-
-    #[error("Kesalahan internal sistem: {0}")]
-    Internal(String),
+    // #[error("Kesalahan internal sistem: {0}")]
+    // Internal(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -66,13 +65,12 @@ impl IntoResponse for AppError {
                     String::from("Terjadi Kesalahan Pada Database"),
                     None,
                 )
-            }
-            AppError::Internal(msg) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                String::from("INTERNAL_ERROR"),
-                msg,
-                None,
-            ),
+            } // AppError::Internal(msg) => (
+              //     StatusCode::INTERNAL_SERVER_ERROR,
+              //     String::from("INTERNAL_ERROR"),
+              //     msg,
+              //     None,
+              // ),
         };
 
         let resp = ErrorDetails {

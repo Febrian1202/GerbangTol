@@ -1,23 +1,21 @@
-use sqlx::PgPool;
-
-use crate::{
-    application::services::toll_road_service::{self, TollRoadService},
-    infrastructure::config::AppConfig,
+use crate::application::services::{
+    toll_road_service::TollRoadService, toll_transaction_service::TollTransactionService,
 };
 
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub config: AppConfig,
-    pub pool: PgPool,
     pub toll_road_service: TollRoadService,
+    pub toll_transaction_service: TollTransactionService,
 }
 
 impl AppState {
-    pub fn new(config: AppConfig, pool: PgPool, toll_road_service: TollRoadService) -> Self {
+    pub fn new(
+        toll_road_service: TollRoadService,
+        toll_transaction_service: TollTransactionService,
+    ) -> Self {
         Self {
-            config,
-            pool,
             toll_road_service,
+            toll_transaction_service,
         }
     }
 }

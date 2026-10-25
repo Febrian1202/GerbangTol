@@ -54,6 +54,26 @@ impl TransactionRepository {
         Ok(tx.clone())
     }
 
+    pub async fn update_exit(&self, tx: &TollTransaction) -> Result<TollTransaction, AppError> {
+        sqlx::query(include_str!("./sql/transaction_update_entry.sql"))
+            .bind(tx.exit_toll_point_id)
+            .bind(tx.exit_gate_id)
+            .bind(tx.exit_time)
+            .bind(tx.exit_km)
+            .bind(tx.distance_km)
+            .bind(tx.base_fare)
+            .bind(tx.rate_per_km)
+            .bind(tx.total_fee)
+            .bind(tx.status.as_str())
+            .bind(&tx.receipt_hash)
+            .bind(tx.updated_at)
+            .bind(tx.id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(tx.clone())
+    }
+
     fn map_row_to_transaction(
         &self,
         r: &sqlx::postgres::PgRow,

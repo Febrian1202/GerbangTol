@@ -8,5 +8,6 @@ pub fn create_router(state: AppState) -> Router {
         .route("/test/{id}", get(test_handler::test_handler))
         .route("/toll-roads", post(toll_road_handler::create))
         .route("/toll/entry", post(transaction_handler::process_entry))
+        .route("/toll/exit", post(transaction_handler::process_exit))
         .with_state(state)
 }

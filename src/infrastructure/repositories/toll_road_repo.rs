@@ -6,7 +6,9 @@ use uuid::Uuid;
 
 use crate::{
     domain::{
-        entities::{toll_gate::TollGate, toll_point::TollPoint, toll_road::TollRoad},
+        entities::{
+            toll_gate::TollGate, toll_point::TollPoint, toll_rate::TollRate, toll_road::TollRoad,
+        },
         value_objects::{gate_type::GateType, vehicle_class::VehicleClass},
     },
     error::AppError,
@@ -107,7 +109,7 @@ impl TollRoadRepository {
         let gate_type_str: String = r.get("gate_type");
         let gate_type = GateType::from_str(&gate_type_str)?;
 
-        let assigned_vc_str: Option<String> = r.get("assigned_id");
+        let assigned_vc_str: Option<String> = r.get("assigned_vehicle_class");
         let assigned_vc = match assigned_vc_str {
             Some(s) => Some(VehicleClass::from_str(&s)?),
             None => None,
@@ -160,5 +162,32 @@ impl TollRoadRepository {
         };
 
         Ok(Some((gate, point, road)))
+    }
+
+    pub async fn find_rate_for_road(
+        &self,
+        road_id: Uuid,
+        vc: VehicleClass,
+    ) -> Result<Option<TollRate>, AppError> {
+        let row = sqlx::query(include_str!("./sql/find_rate_for_road.sql"))
+            .bind(road_id)
+            .bind(vc.as_str())
+            .fetch_optional(&self.pool)
+            .await?;
+
+        let Some(r) = row else {
+            return Ok(None);
+        };
+
+        Ok(Some(TollRate {
+            id: r.get("id"),
+            toll_road_id: r.get("toll_road_id"),
+            vehicle_class: vc,
+            base_fare: r.get("base_fare"),
+            rate_per_km: r.get("rate_per_km"),
+            description: r.get("description"),
+            created_at: r.get("created_at"),
+            updated_at: r.get("updated_at"),
+        }))
     }
 }

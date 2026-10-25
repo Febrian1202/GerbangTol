@@ -23,9 +23,9 @@ impl GateType {
         matches!(self, GateType::Entry)
     }
 
-    // pub fn allow_exit(&self) -> bool {
-    //     matches!(self, GateType::Exit)
-    // }
+    pub fn allow_exit(&self) -> bool {
+        matches!(self, GateType::Exit)
+    }
 }
 
 impl FromStr for GateType {
